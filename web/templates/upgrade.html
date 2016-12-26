@@ -1,0 +1,635 @@
+{% extends "layout.html" %}
+
+{% block breadcrumb %}
+<li><a href="#">临时发布</a><span class="divider"></span></li>
+<li class="active">网站发布</li>
+{% endblock %}
+
+{% block body %}
+<div class="widget-box">
+   <div class="widget-title"> 
+      <h5 style="float:left;"><i class="fa fa-table fa-fw"></i>发布任务</h5>
+      <button style="float:right;" class="btn btn-primary btn-sm" id="addBtn">添加任务</button>
+	  <button style="float:right;" class="btn btn-info btn-sm delmem-btn" id="cdnBtn">CDN推送</button>
+	  <button style="float:right;" class="btn btn-warning btn-sm delmem-btn"  id="rmcacheBtn">刷新缓存</button>
+	  <button style="float:right;" class="btn btn-danger btn-sm rsync-btn" id="rsyncBtn">发布升级</button>
+   </div> <!--widget-title end-->
+
+
+ <!--刷新缓存模态窗-->
+<div id="rmcacheModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">刷新缓存</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <p hidden id="rmcacheerrorMsg" class="text-danger" style="color:red"></p> <!-- foe error msg-->
+    <form class="form-horizontal" id="rmcacheForm" accept-charset="UTF-8">
+    <div class="control-group">
+         <label class="control-label col-sm-3">选择路径：</label>
+        <div class="col-sm-9">
+            <select id="pathselect" name="path" class ="form-control multiselect" datatype="*">
+                <option value="NewWanbu">NewWanbu</option>
+                <option value="oms">oms</option>
+            </select>
+        </div>
+    </div> <!--刷新缓存功能选择-->
+    
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="rmcachebtn" >确认刷新</button>
+			 	<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div> 
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+   
+   
+   
+   
+<!--添加发布任务模态窗-->
+<div id="addModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">添加任务</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <form class="form-horizontal" id="addForm" accept-charset="UTF-8">
+    <div class="control-group">
+         <label class="control-label col-sm-3">升级功能：</label>
+        <div class="col-sm-9">
+         <input type="text" name="name" class="form-control"  datatype="s2-10" errormsg="必须是2-10个字符" />
+        </div>
+    </div> <!--升级功能添加-->
+
+    <div class="control-group">
+        <label class="control-label col-sm-3">升级路径：</label>
+        <div class="col-sm-9">
+            <input  type="text" name="path" class="form-control" datatype="*" errormsg="不能为空" />
+        </div> 
+    </div><!--升级路径添加-->
+    
+    <div class="control-group">
+        <label class="control-label col-sm-3">升级说明：</label>
+        <div class="col-sm-9">
+        <textarea class="form-control" rows="3" class="form-control"  name="comment"></textarea>
+        </div>    
+    </div>  <!--详情-->
+    
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="submitbtn" >确认添加</button>
+			 	<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div> 
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!--任务上线模态窗-->
+<div id="svnModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">上线任务</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <p hidden id="svnerrorMsg" class="text-danger" style="color:red"></p> <!-- foe error msg-->
+    <form class="form-horizontal" id="svnForm" accept-charset="UTF-8">
+    <input type="hidden" id='svnid' name="id">  <!--update need id-->
+    
+    <div class="control-group">
+        <label class="control-label col-sm-3">升级功能：</label>
+        <div class="col-sm-9">
+         <input type="text" id="svnname" name="name" class="form-control"  datatype="s1-16" errormsg="必须是1-16个字符" />
+        </div>
+    </div> <!--升级功能-->
+    
+    <div class="control-group">
+        <label class="control-label col-sm-3">升级路径：</label>
+        <div class="col-sm-9">
+            <input  type="text" id="svnpath" name="path" class="form-control" datatype="zh1-8" errormsg="必须是1-8个中文字符" />
+        </div>  
+    </div><!--升级路径-->
+    
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="tbtn" >确认上线</button>
+			 	<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div> 
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+
+<!--任务发布模态窗-->
+<div id="rsyncModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">发布任务</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <p hidden id="rsyncerrorMsg" class="text-danger" style="color:red"></p> <!-- foe error msg-->
+    <form class="form-horizontal" id="rsyncForm" accept-charset="UTF-8">
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="rbtn" >确认发布</button>
+			 	<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div> 
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+<!--CDN推送模态窗-->
+<div id="cdnModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-body">
+    <form class="form-horizontal" id="cdnForm" accept-charset="UTF-8">
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="cdnbtn" >确认推送</button>
+			 	<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div> 
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!--上线详情模态窗-->
+<div id="resModal" class="modal fade bs-example-modal-lg">
+ <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">上线详情</h4>
+	  </div><!--modal-header end-->
+                <div class="modal-body">
+				    <h4>升级说明</h4>
+				    <p id="res_comment"></p>
+					<hr>
+					<h4>上线详情</h4>
+                    <p id="res_result"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">退出</button>
+                </div>
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+    <!--更新升级任务模态窗-->
+<div id="updateModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">更新内容</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+     <p hidden id="uperrorMsg" class="text-danger" style="color:red"></p> <!-- foe error msg-->
+    <form class="form-horizontal" id="updateForm" accept-charset="UTF-8">
+    <input type="hidden" id='upid' name="id">  <!--update need id-->
+    <div class="control-group"> 
+        <label class="control-label col-sm-3">升级功能：</label>
+        <div class="col-sm-9">
+         <input type="text" id="upname" name="name" class="form-control"  datatype="s5-16" errormsg="必须是5-16个字符" />
+        </div>
+    </div> <!--权限名添加-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">升级路径：</label>
+        <div class="col-sm-9">
+            <input  type="text" id="uppath" name="path" class="form-control" datatype="*" errormsg="不能为空" />
+        </div> 
+    </div><!--中文名添加-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">升级说明：</label>
+        <div class="col-sm-9">
+        <textarea id="upcomment" rows="3" class="form-control"  name="comment"></textarea>
+        </div>    
+    </div>  <!--备注-->
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="upbtn" >确认更新</button>
+			 	 <button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div>  
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+    <div class="widget-content"> 
+    <!--升级列表-->
+		<table id ="datatable"  class="table table-bordered table-striped table-hover">
+		<thead>
+			<tr>
+				<th>序号</th>
+				<th>升级功能</th>
+				<th>升级路径</th>
+				<th>创建时间</th>
+				<th>操作</th>
+			</tr>
+		</thead> 
+		<tbody>
+		</tbody>
+	   </table>
+
+	</div><!--widget-content end-->
+
+</div><!--widget-box end-->
+{% endblock %}
+
+{% block js %}
+
+name='upgrade'
+function datatable(){
+    $('#datatable').DataTable({
+        "aaSorting": [[ 0, "desc" ]],
+        "language": {
+            "lengthMenu": "每页 _MENU_ 条记录",
+            "zeroRecords": "没有找到记录",
+            "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+            "infoEmpty": "无记录",
+            "infoFiltered": "(从 _MAX_ 条记录过滤)",
+            "sSearch": "搜索:",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        }
+    });
+};
+
+/* 列出所有数据 */
+function list(){
+    url = "/listapi?method="+name
+    $.getJSON(url,function(data){
+       data=JSON.parse(data['result']); //object 
+       console.log(data)   
+       if (data['code']== 0){       
+           var str = ''
+           $.each(data.result,function(k,v){   
+               str +='<tr class="odd gradeX">'+
+               '<td>'+v['id']+'</td>'+ 			   
+               '<td>'+v['name']+'</td>'+  
+               '<td>'+v['path']+'</td>'+
+               '<td>'+v['create_date']+'</td>'+			    
+               '<td>'+
+               '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">编辑</button>'+
+			   '<button class="btn btn-info btn-sm svn-btn" data-id="'+v['id']+'">上线</button>'+
+			   '<button class="btn btn-default btn-sm res-btn" data-toggle="modal" data-target=".bs-example-modal-lg" data-id="'+v['id']+'">详情</button>'+
+               '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
+               '</td>'+ '</tr>'          
+           })       
+                $("tbody").html(str)
+                 datatable()
+            }else{
+                swal("error", data['errmsg'],"error")
+            }
+   })
+}
+
+list()
+
+/* 点击按钮，显示添加任务模态窗 */
+$("#addBtn").on('click',function(){
+    $('#addModal').modal('show')
+})
+/* 验证添加任务的表单  */
+$("#addForm").Validform({
+    btnSubmit:"#submitbtn",
+    tiptype:3, 
+    datatype:{
+        "zh2-4" : /^[\u4E00-\u9FA5\uf900-\ufa2d]{2,4}$/,
+    }
+})
+
+
+
+/* 任务添加 */
+$('#addForm').on('submit',function(){
+        var check = $("#addForm").Validform().check()   // 获取表单验证插件检查的值，都ok返回true，否则false
+        if (check){    
+                var str = $('#addForm').serialize()
+                var data=str+"&method=upgrade"
+                $.post('/addapi',data,function(data){ 
+                    data=JSON.parse(data);   //将json串转换为对象，然后取值
+                    data = JSON.parse(data['result']) //object
+                    console.log(data)
+                    if (data['code']==0){
+                             swal({
+                                title:"success", 
+                                text:"添加成功",
+                                type:"success",
+                                confirmButtonText:'确定'
+                                },function(){
+                                    $('#addModal').modal('hide')
+                                    window.location.reload();
+                                  })
+                    }else{
+                        swal("error","创建任务失败," + data['errmsg'],"error")
+                     }   /*if end*/
+                 })  /*post end*/
+                   return false;
+        }   // check end
+})  /*submit end*/
+
+
+
+/*点击按钮，显示更新升级任务模态窗,并获取升级任务信息*/
+$("tbody").on('click','.update-btn',function(){
+    var id = $(this).attr('data-id')
+    var url = "/getapi?method="+name+"&id="+id
+    $.getJSON(url,function(data){
+      data = JSON.parse(data['result'])
+      console.log(data)
+      if (data['code']==0){
+          $('#upid').val(data['result']['id'])
+          $('#upname').val(data['result']['name'])
+          $('#uppath').val(data['result']['path'])
+          $('#upcomment').val(data['result']['comment'])
+          $('#updateModal').modal('show')
+      }else{
+          swal("Error", data['errmsg'], "error")
+      }
+    })
+})
+
+
+/* 验证更新任务的表单  */
+$("#updateForm").Validform({
+    btnSubmit:"#submitbtn",
+    tiptype:3, 
+    datatype:{
+        "zh2-4" : /^[\u4E00-\u9FA5\uf900-\ufa2d]{2,4}$/,
+    }
+})
+
+/* 任务更新 */
+$('#updateForm').on('submit',function(){
+        var check = $("#updateForm").Validform().check()   // 获取表单验证插件检查的值，都ok返回true，否则false
+        if (check){    
+                var str = $('#updateForm').serialize()
+                var data=str+"&method=upgrade"
+                $.post('/updateapi',data,function(data){ 
+                    data=JSON.parse(data);   //将json串转换为对象，然后取值
+                    data = JSON.parse(data['result']) //object
+                    console.log(data)
+                    if (data['code']==0){
+                             swal({
+                                title:"success", 
+                                text:"添加成功",
+                                type:"success",
+                                confirmButtonText:'确定'
+                                },function(){
+                                    $('#addModal').modal('hide')
+                                    window.location.reload();
+                                  })
+                    }else{
+                        swal("error","创建任务失败," + data['errmsg'],"error")
+                     }   /*if end*/
+                 })  /*post end*/
+                   return false;
+        }   // check end
+})  /*submit end*/
+
+
+/* 点击按钮，显示刷新缓存模态窗 */
+$("#rmcacheBtn").on('click',function(){
+	$('#pathselect').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+    $('#pathselect').multiselect('refresh')
+    $('#rmcacheModal').modal('show')
+})
+
+
+/*提交刷新缓存*/
+$('#rmcacheForm').on('submit',function(){
+        var str = $('#rmcacheForm').serialize()
+		console.log(str)
+        var data = str+"&method=rmcache"
+        console.log(data)
+        $.post('/upgradeapi',data, function(data){  // data is string
+            data = JSON.parse(data)    //object
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){   
+            swal({
+                title:"success",
+                text:"刷新成功",
+                type:"success",
+                confirmButtonText:'确定'
+                },function(){
+                    $('#rmcacheModal').modal('hide')
+                    location.reload()
+                })
+            }else{
+                $('#rmcacheerrorMsg').html('Failed: '+data['errmsg']).show()
+            }
+        })
+            return false   //get data and end
+})  //submit form
+
+
+/* 点击按钮，显示CDN推送模态窗 */
+$("#cdnBtn").on('click',function(){
+    $('#cdnModal').modal('show')
+})
+
+
+/*提交推送CDN*/
+$('#cdnForm').on('submit',function(){
+        var str = $('#cdnForm').serialize()
+		console.log(str)
+        var data = str+"&method=cdn"
+        console.log(data)
+        $.post('/upgradeapi',data, function(data){  // data is string
+            data = JSON.parse(data)    //object
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){   
+            swal({
+                title:"success",
+                text:"推送成功",
+                type:"success",
+                confirmButtonText:'确定'
+                },function(){
+                    $('#cdnModal').modal('hide')
+                    location.reload()
+                })
+            }else{
+                swal("Error", data['errmsg'], "error")
+            }
+        })
+            return false   //get data and end
+})  //submit form
+
+
+/* 任务上线 */
+/* 点击上线按钮，显示任务上线模态窗,并获取当前上线任务的信息 */
+$("tbody").on('click','.svn-btn',function(){
+    var id = $(this).attr('data-id')
+    var url = "/getapi?method="+name+"&id="+id
+    $.getJSON(url,function(data){
+      data = JSON.parse(data['result'])
+      console.log(data)
+      if (data['code']==0){
+	      $('#svnid').val(data['result']['id'])
+          $('#svnname').val(data['result']['name'])
+          $('#svnpath').val(data['result']['path'])
+          $('#svnModal').modal('show')
+      }else{
+          swal("Error", data['errmsg'], "error")
+      }
+    })
+})
+
+/* 上线详情展示 */
+/* 点击详情按钮，显示上线详情信息 */
+$("tbody").on('click','.res-btn',function(){
+    var id = $(this).attr('data-id')
+    var url = "/getapi?method="+name+"&id="+id
+	console.log(url)
+    $.getJSON(url,function(data){
+      data = JSON.parse(data['result'])
+      console.log(data)
+      if (data['code']==0){
+	      $('#res_comment').html(data['result']['comment'])
+          $('#res_result').html(data['result']['result'])
+          $('#resModal').modal('show')
+      }else{
+          swal("Error", data['errmsg'], "error")
+      }
+    })
+})
+
+/*任务上线svn更新*/
+$('#svnForm').on('submit',function(){
+        var str = $('#svnForm').serialize()
+        var data = str+"&method=svn"
+        console.log(data)
+        $.post('/upgradeapi',data, function(data){  // data is string
+            data = JSON.parse(data)    //object
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){   
+            swal({
+                title:"success",
+                text:"上线成功",
+                type:"success",
+                confirmButtonText:'确定'
+                },function(){
+                    $('#svnModal').modal('hide')
+                    location.reload()
+                })
+            }else{
+                $('#svnerrorMsg').html('Failed: '+data['errmsg']).show()
+            }
+        })
+            return false   //get data and end
+})  //submit form
+
+/* 点击按钮，显示升级发布模态窗 */
+$("#rsyncBtn").on('click',function(){
+    $('#rsyncModal').modal('show')
+})
+
+
+/*任务发布rsync同步*/
+$('#rsyncForm').on('submit',function(){
+        var data = "&method=rsync"
+        console.log(data)
+        $.post('/upgradeapi',data, function(data){  // data is string
+            data = JSON.parse(data)    //object
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){   
+            swal({
+                title:"success",
+                text:"发布成功",
+                type:"success",
+                confirmButtonText:'确定'
+                },function(){
+                    $('#rsyncModal').modal('hide')
+                    location.reload()
+                })
+            }else{
+                $('#rsyncerrorMsg').html('Failed: '+data['errmsg']).show()
+            }
+        })
+            return false   //get data and end
+})  //submit form
+
+
+/*删除发布*/
+$("tbody").on('click','.delete-btn',function(){
+	if(confirm("是否确认删除？")){
+		var id = $(this).attr('data-id')
+		var url =  "/deleteapi?method="+name+"&id="+id
+        console.log(url)
+		$.getJSON(url,function(data){
+            data = JSON.parse(data['result'])
+			if (data['code']== 0 ){
+                swal({
+                    title:"success",
+                    text:"删除成功",
+                    type:"success",
+                    confirmButtonText:'删除成功'
+                    },function(){
+                        location.reload()
+                    })
+ 				
+			}else{
+				swal(data['errmsg'])
+			}
+    	})
+    }  // end confirm
+}) 
+
+
+
+
+ 
+{% endblock %}
