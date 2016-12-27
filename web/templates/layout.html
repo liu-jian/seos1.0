@@ -150,6 +150,17 @@ button.detail{
                 {% endif %}
             </ul>    
             </li> <!--代码管理结束-->
+
+			<li><!--CMDB-->
+            <a href="#"><i class="fa fa-file-code-o fa-fw"></i>CMDB<span class="fa arrow"></span></a>
+            <ul class="nav nav-second-level">
+                {% if info and 'git' in info.perm %}
+                <li>
+                    <a href="/cmdb/basic">基础信息</a>
+                </li>
+                {% endif %}
+            </ul>    
+            </li> <!--代码管理结束-->
         </ul><!--菜单列表结束-->
 
     </div><!--sidebar-collapse end -->

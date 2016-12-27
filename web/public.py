@@ -20,7 +20,7 @@ def listapi():
     headers['authorization'] = session['author']
     method = request.args.get('method')
     data['method'] = method+".getlist"
-    data['params'] = {}
+    data['params'] = {'table':request.args.get('table')}
     utils.write_log('web').info(data)
     r = requests.post(get_url(),headers=headers,json=data)
     utils.write_log('web').info(r.text)
@@ -30,11 +30,11 @@ def listapi():
 def addapi():
     headers['authorization'] = session['author']
     formdata1 = request.form
-    print formdata1
-    print dict(formdata1)
     formdata = dict((k,','.join(v)) for k,v in dict(request.form).items())
-    print formdata
     method = formdata['method']
+    if formdata.has_key('table'):
+        data['table'] = formdata['table']
+        formdata.pop('table')
     data['method'] = method+".create"
     formdata.pop('method')
     data['params']=formdata
