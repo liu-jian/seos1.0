@@ -49,9 +49,9 @@ def user(htmlname):
     headers['authorization'] = session['author']
     validate_result = json.loads(utils.validate(session['author'], app.config['passport_key']))
     if int(validate_result['code']) == 0:
-        return render_template(htmlname+'.html',info=session,user=session['user'])
+        return render_template('user/'+htmlname+'.html',info=session,user=session['user'])
     else:
-       return render_template(htmlname+'.html',errmsg=validate_result['errmsg']) 
+       return render_template('user/'+htmlname+'.html',errmsg=validate_result['errmsg']) 
 
 #项目管理模块
 @app.route('/project/<htmlname>') 
@@ -61,9 +61,9 @@ def project(htmlname):
     headers['authorization'] = session['author']
     validate_result = json.loads(utils.validate(session['author'], app.config['passport_key']))
     if int(validate_result['code']) == 0:
-        return render_template(htmlname+'.html',info=session,user=session['user'])
+        return render_template('project/'+htmlname+'.html',info=session,user=session['user'])
     else:
-       return render_template(htmlname+'.html',errmsg=validate_result['errmsg']) 
+       return render_template('project/'+htmlname+'.html',errmsg=validate_result['errmsg']) 
 
 #cmdb模块
 @app.route('/cmdb/<htmlname>')  
@@ -73,9 +73,9 @@ def cmdb(htmlname):
     headers['authorization'] = session['author']
     validate_result = json.loads(utils.validate(session['author'], app.config['passport_key']))
     if int(validate_result['code']) == 0:
-        return render_template(htmlname+'.html',info=session,user=session['user'])
+        return render_template('cmdb/'+htmlname+'.html',info=session,user=session['user'])
     else:
-        return render_template(htmlname+'.html',errmsg=validate_result['errmsg']) 
+        return render_template('cmdb/'+htmlname+'.html',errmsg=validate_result['errmsg']) 
 
 #第三方API接口页面
 @app.route('/api/<htmlname>')  

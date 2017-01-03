@@ -1,0 +1,324 @@
+{% extends "layout.html" %}
+
+{% block breadcrumb %}
+<li><a href="#">CMDB</a><span class="divider"></span></li>
+<li class="active">服务器</li>
+{% endblock %}
+
+{% block body %}
+<div class="widget-box">
+   <div class="widget-title"> 
+      <h5 style="float:left;"><i class="fa fa-table fa-fw"></i>服务器</h5>
+      <button style="float:right;" class="btn btn-primary btn-sm" id="addBtn">添加机器</button>
+   </div> <!--widget-title end-->
+
+    <!--添加服务器模态窗-->
+<div id="addModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">添加服务器</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <form class="form-horizontal" id="addForm" accept-charset="UTF-8">
+    <div class="control-group"> 
+        <label class="control-label col-sm-3">节点名：</label>
+        <div class="col-sm-9">
+         <input type="text" name="saltname" class="form-control"  datatype="s1-16" errormsg="必须是1-16个字符" />
+        </div>
+    </div> <!--权限名添加-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">编号：</label>
+        <div class="col-sm-9">
+            <input  type="text" name="assets_no" class="form-control" datatype="*" errormsg="不能为空" />
+        </div> 
+    </div><!--中文名添加-->
+    <div class="control-group">
+	    <label class ="control-label col-sm-3">网卡: </label>
+		<div class="col-sm-9">
+         <input type="text" name="ethno" class="form-control"  datatype="*" errormsg="不能为空" />
+		</div>    
+	</div> <!--URL-->
+    <div class="control-group">
+	    <label class ="control-label col-sm-3">IDC: </label>
+		<div class="col-sm-9">
+            <select id="idc_id" name="idc_id" class ="form-control multiselect" datatype="*" errormsg="idc不能为空">
+            </select>
+		</div>    
+	</div> <!--URL-->
+    <div class="control-group">
+	    <label class ="control-label col-sm-3">机架: </label>
+		<div class="col-sm-9">
+            <select id="cabinet_id" name="cabinet_id" class ="form-control multiselect" datatype="*" errormsg="机架不能为空">
+            </select>
+		</div>    
+	</div> <!--URL-->
+    <div class="control-group">
+	    <label class ="control-label col-sm-3">系统: </label>
+		<div class="col-sm-9">
+            <select id="servertype_id" name="servertype_id" class ="form-control multiselect" datatype="*" errormsg="系统不能为空">
+            </select>
+		</div>    
+	</div> <!--URL-->
+    <div class="control-group">
+	    <label class ="control-label col-sm-3">状态: </label>
+		<div class="col-sm-9">
+            <select id="status_id" name="status_id" class ="form-control multiselect" datatype="*" errormsg="状态不能为空">
+            </select>
+		</div>    
+	</div> <!--URL-->
+    <div class="control-group">
+	    <label class ="control-label col-sm-3">产品: </label>
+		<div class="col-sm-9">
+            <select id="product_id" name="product_id" class ="form-control multiselect" datatype="*" errormsg="产品不能为空" multiple="multiple">
+            </select>
+		</div>    
+	</div> <!--URL-->
+    <div class="control-group">
+	    <label class ="control-label col-sm-3">功能: </label>
+		<div class="col-sm-9">
+            <select id="service_id" name="service_id" class ="form-control multiselect" datatype="*" errormsg="功能不能为空" multiple="multiple">
+            </select>
+		</div>    
+	</div> <!--URL-->
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="submitbtn" >确认添加</button>
+			 	<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div> 
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+    <div class="widget-content">
+    <!--服务器列表-->
+		<table id ="datatable"  class="table table-bordered table-striped table-hover">
+		<thead>
+			<tr>
+				<th>服务器</th>
+				<th>IP</th>
+				<th>产品</th>
+				<th>功能</th>
+				<th>状态</th>
+				<th>操作</th>
+			</tr>
+		</thead> 
+		<tbody>
+		</tbody>
+	   </table>
+	</div>
+
+</div><!--widget-content end-->
+{% endblock %}
+
+{% block js %}
+name='server'
+function datatable(){
+    $('#datatable').DataTable({
+        "language": {
+            "lengthMenu": "每页 _MENU_ 条记录",
+            "zeroRecords": "没有找到记录",
+            "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+            "infoEmpty": "无记录",
+            "infoFiltered": "(从 _MAX_ 条记录过滤)",
+            "sSearch": "搜索:",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        }
+    });
+};
+
+
+/* 列出所有数据 */
+function list(){
+    url = "/listapi?method="+name
+    $.getJSON(url,function(data){
+       data=JSON.parse(data['result']); //object 
+       console.log(data)   
+       if (data['code']== 0){       
+           var str = ''
+           $.each(data.result,function(k,v){   
+               str +='<tr class="odd gradeX">'+  
+               '<td>'+v['saltname']+'</td>'+  
+               '<td>'+v['inner_ip']+'</td>'+  
+               '<td>'+v['product_id']+'</td>'+  
+               '<td>'+v['service_id']+'</td>'+
+			   '<td>'+v['status_id']+'</td>'+
+               '<td>'+
+               '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">更新</button>'+
+               '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
+               '</td>'+ '</tr>'          
+           })       
+                $("tbody").html(str)
+                 datatable()
+            }else{
+                swal("error", data['errmsg'],"error")
+            }
+   })
+}
+
+list()
+
+
+
+/* 列出权限的信息，并拼接成添加角色模态窗的下拉菜单 */
+function powerlist(){
+    var url_idc="/listapi?method=cmdb&table=cmdb_idc"
+	var url_cabinet="/listapi?method=cmdb&table=cmdb_cabinet"
+	var url_servertype="/listapi?method=cmdb&table=cmdb_servertype"
+	var url_status="/listapi?method=cmdb&table=cmdb_status"
+	var url_product="/listapi?method=cmdb&table=cmdb_product"
+	var url_service="/listapi?method=cmdb&table=cmdb_service"
+    $.getJSON(url_idc, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)   
+        if (data['code']== 0){
+            var str = ''
+            $.each(data.result, function(k,v){
+                str += '<option value="'+v['id']+'">'+v['name_cn']+'</option>'
+            })
+            $("#idc_id").html(str)
+            $('#idc_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+            $("#idc_id").multiselect('refresh')
+        }else{
+                swal("error","获取IDC列表失败," + data['errmsg'],"error")
+        } //if end
+    })
+    $.getJSON(url_cabinet, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)   
+        if (data['code']== 0){
+            var str = ''
+            $.each(data.result, function(k,v){
+                str += '<option value="'+v['id']+'">'+v['name']+'</option>'
+            })
+            $("#cabinet_id").html(str)
+            $('#cabinet_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+            $("#cabinet_id").multiselect('refresh')
+        }else{
+                swal("error","获取机柜列表失败," + data['errmsg'],"error")
+        } //if end
+    })
+    $.getJSON(url_servertype, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)   
+        if (data['code']== 0){
+            var str = ''
+            $.each(data.result, function(k,v){
+                str += '<option value="'+v['id']+'">'+v['name']+'</option>'
+            })
+            $("#servertype_id").html(str)
+            $('#servertype_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+            $("#servertype_id").multiselect('refresh')
+        }else{
+                swal("error","获取系统版本列表失败," + data['errmsg'],"error")
+        } //if end
+    })
+    $.getJSON(url_status, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)   
+        if (data['code']== 0){
+            var str = ''
+            $.each(data.result, function(k,v){
+                str += '<option value="'+v['id']+'">'+v['name']+'</option>'
+            })
+            $("#status_id").html(str)
+            $('#status_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+            $("#status_id").multiselect('refresh')
+        }else{
+                swal("error","获取状态列表失败," + data['errmsg'],"error")
+        } //if end
+    })
+    $.getJSON(url_product, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)   
+        if (data['code']== 0){
+            var str = ''
+            $.each(data.result, function(k,v){
+                str += '<option value="'+v['id']+'">'+v['name_cn']+'</option>'
+            })
+            $("#product_id").html(str)
+            $('#product_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+            $("#product_id").multiselect('refresh')
+        }else{
+                swal("error","获取产品线列表失败," + data['errmsg'],"error")
+        } //if end
+    })
+    $.getJSON(url_service, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)   
+        if (data['code']== 0){
+            var str = ''
+            $.each(data.result, function(k,v){
+                str += '<option value="'+v['id']+'">'+v['name_cn']+'</option>'
+            })
+            $("#service_id").html(str)
+            $('#service_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+            $("#service_id").multiselect('refresh')
+        }else{
+                swal("error","获取机柜列表失败," + data['errmsg'],"error")
+        } //if end
+    })
+	
+
+}
+
+/* 点击按钮，显示添加服务器模态窗 */
+$("#addBtn").on('click',function(){
+	powerlist()
+    $('#addModal').modal('show')
+})
+
+/* 验证添加角色的表单  */
+$("#addForm").Validform({
+    btnSubmit:"#submitbtn",
+    tiptype:3, 
+    datatype:{
+        "zh2-4" : /^[\u4E00-\u9FA5\uf900-\ufa2d]{2,4}$/,
+    }
+})
+
+/* 角色添加 */
+$('#addForm').on('submit',function(){
+        var check = $("#addForm").Validform().check()   // 获取表单验证插件检查的值，都ok返回true，否则false
+        if (check){    
+                var str = $('#addForm').serialize()
+                var data=str+"&method=server"
+                $.post('/addapi',data,function(data){ 
+                    data=JSON.parse(data);   //将json串转换为对象，然后取值
+					console.log(data)
+                    data = JSON.parse(data['result']) //object
+                    console.log(data)
+                    if (data['code']==0){
+                             swal({
+                                title:"success", 
+                                text:"添加成功",
+                                type:"success",
+                                confirmButtonText:'确定'
+                                },function(){
+                                    $('#addModal').modal('hide')
+                                    window.location.reload();
+                                  })
+                    }else{
+                        swal("error","创建服务器失败," + data['errmsg'],"error")
+                     }   /*if end*/
+                 })  /*post end*/
+                   return false;
+        }   // check end
+})  /*submit end*/
+
+
+
+
+
+{% endblock %}

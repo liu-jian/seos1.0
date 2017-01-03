@@ -26,3 +26,5 @@ import role
 import select
 import user
 import upgrade
+import cmdb
+import server

@@ -11,7 +11,7 @@
 		<a href="#idc" data-toggle="tab">IDC</a>
 	</li>
 	<li>
-		<a href="#cabinet" data-toggle="tab">机柜</a>
+		<a id="chose_cabinet" href="#cabinet" data-toggle="tab">机柜</a>
 	</li>
     <li>
 		<a href="#product" data-toggle="tab">业务</a>
@@ -99,23 +99,63 @@
 		</div>
 	</div>
 	<div class="tab-pane fade" id="cabinet">
-		<button style="float:right;" class="btn btn-primary btn-sm" id="addBtn">添加机柜</button>
+		<button style="float:right;" class="btn btn-primary btn-sm" id="addcabinetBtn">添加机柜</button>
 		<div class="widget-box">
 			<div class="widget-content">
 			<!--权限列表-->
-				<table id ="datatable"  class="table table-bordered table-striped table-hover">
+				<table id ="cabinet_datatable"  class="table table-bordered table-striped table-hover">
 				<thead>
 					<tr>
-						<th>IDC</th>
 						<th>名称</th>
-						<th>接口人</th>
-						<th>电话</th>
+						<th>IDC</th>
+						<th>功率</th>
 						<th>操作</th>
 					</tr>
 				</thead> 
-				<tbody>
+				<tbody id="cabinet_tbody">
 				</tbody>
 			   </table>
+			   	<!--添加机柜信息模态窗-->
+				<div id="addcabinetModal" class="modal fade">
+				 <div class="modal-dialog">
+					<div class="modal-content">
+					  <div class="modal-header">
+						 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					  <h4 class="modal-title">添加机柜</h4>
+					  </div><!--modal-header end-->
+
+					<div class="modal-body">
+					<form class="form-horizontal" id="addcabinetForm" accept-charset="UTF-8">
+					<div class="control-group"> 
+						<label class="control-label col-sm-3">名称：</label>
+						<div class="col-sm-9">
+						 <input type="text" name="name" class="form-control"  datatype="s1-16" errormsg="必须是1-16个字符" />
+						</div>
+					</div> <!--简称添加-->
+					<div class="control-group">
+						<label class ="control-label col-sm-3">IDC: </label>
+						<div class="col-sm-9">
+						 <input type="text" name="idc_id" class="form-control"  datatype="*" errormsg="不能为空" />
+						</div>    
+					</div> <!--地址-->
+					<div class="control-group">
+						<label class ="control-label col-sm-3">功率: </label>
+						<div class="col-sm-9">
+						 <input type="text" name="power" class="form-control"  datatype="*" errormsg="不能为空" />
+						</div>    
+					</div> <!--地址-->
+					<div class="form-group">
+						 <div class="modal-footer">
+								<button class="btn btn-primary" id="submitbtn" >确认添加</button>
+								<button class="btn btn-warning" data-dismiss="modal">退出</button>
+						</div> 
+					</div>
+					</form> 
+
+					  </div><!-- /.modal-body-->
+				   </div><!-- /.modal-content -->
+				  </div><!-- /.modal-dialog -->
+				</div><!-- /.modal -->
 			</div>
 		</div>
 	</div>
@@ -152,6 +192,7 @@ function datatable(){
             "zeroRecords": "没有找到记录",
             "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
             "infoEmpty": "无记录",
+			"bRetrieve": true,
             "infoFiltered": "(从 _MAX_ 条记录过滤)",
             "sSearch": "搜索:",
             "oPaginate": {
@@ -182,6 +223,7 @@ function list(){
                '<td>'+
                '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">更新</button>'+
                '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
+			   '<button class="btn btn-default btn-sm delete-btn" data-id="'+v['id']+'">详情</button>'+
                '</td>'+ '</tr>'          
            })       
                 $("#idc_tbody").html(str)
@@ -194,13 +236,13 @@ function list(){
 
 list()
 
-/*点击按钮，显示添加用户模态窗*/
+/*点击按钮，显示添加IDC模态窗*/
 $("#addidcBtn").on('click',function(){
     $('#addidcModal').modal('show')
 })
 
 
-/*用户添加*/
+/*IDC添加*/
 $('#addidcForm').on('submit',function(){
         var str = $('#addidcForm').serialize()
         var data=str+"&method="+name+"&table=cmdb_idc"
@@ -216,7 +258,7 @@ $('#addidcForm').on('submit',function(){
                         type:"success",
                         confirmButtonText:'确定'
                         },function(){
-                            $('#addModal').modal('hide')
+                            $('#addidcModal').modal('hide')
                             window.location.reload();
                           })
             }else{
@@ -225,4 +267,90 @@ $('#addidcForm').on('submit',function(){
          })  /*post end*/
          return false;
 })  /*submit end*/
+
+
+function cabinet_datatable(){
+	$('#cabinet_datatable').dataTable().fnDestroy();
+    $('#cabinet_datatable').DataTable({
+        "language": {
+			"bRetrieve": true,
+            "lengthMenu": "每页 _MENU_ 条记录",
+            "zeroRecords": "没有找到记录",
+            "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+            "infoEmpty": "无记录",
+            "infoFiltered": "(从 _MAX_ 条记录过滤)",
+            "sSearch": "搜索:",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        }
+    });
+};
+
+
+function cabinet_list(){                                                                                                                 
+    var url="/listapi?method="+name+"&table=cmdb_cabinet"
+    console.log(url)
+    $.getJSON(url,function(data){
+       data=JSON.parse(data['result']); //object 
+       console.log(data)   
+       if (data['code']== 0){       
+           var str = ''
+           $.each(data.result,function(k,v){   
+               str +='<tr class="odd gradeX">'+  
+               '<td>'+v['name']+'</td>'+  
+               '<td>'+v['idc_id']+'</td>'+ 			   
+               '<td>'+v['power']+'</td>'+  
+               '<td>'+
+               '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">更新</button>'+
+               '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
+               '</td>'+ '</tr>'          
+           })       
+                $("#cabinet_tbody").html(str)
+                cabinet_datatable()
+            }else{
+                swal("error", data['errmsg'],"error")
+            }
+         })
+}
+
+/*点击按钮，显示机柜列表*/
+$("#chose_cabinet").on('click',function(){
+    cabinet_list()
+})
+
+/*点击按钮，显示添加机柜模态窗*/
+$("#addcabinetBtn").on('click',function(){
+    $('#addcabinetModal').modal('show')
+})
+
+/*机柜添加*/
+$('#addcabinetForm').on('submit',function(){
+        var str = $('#addcabinetForm').serialize()
+        var data=str+"&method="+name+"&table=cmdb_cabinet"
+        console.log(data)
+        $.post('/addapi',data,function(data){ 
+            data=JSON.parse(data);   //将json串转换为对象，然后取值
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){
+                    swal({
+                        title:"success", 
+                        text:"添加成功",
+                        type:"success",
+                        confirmButtonText:'确定'
+                        },function(){
+                            $('#addcabinetModal').modal('hide')
+                            window.location.reload();
+                          })
+            }else{
+                swal("error","创建用户失败," + data['errmsg'],"error")
+             }   /*if end*/
+         })  /*post end*/
+         return false;
+})  /*submit end*/
+
 {% endblock %}
