@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import json
 import requests
 
-url = "http://127.0.0.1:2000/api"
+url = "http://127.0.0.1:3000/api"
 #登录并获取token
 def login(username,password):
         rep_url = "%s/login?username=%s&passwd=%s" % (url,username,password)
@@ -30,10 +30,10 @@ def rpc():
                 'method': 'selected.get',      
                 'id':'1',
                 'params':{
-                    'm_table':'user',
-                    'field':'r_id',
+                    'm_table':'cmdb_server',
+                    'field':'product_id',
                     'where':{'id':1},
-                    's_table':'role'
+                    's_table':'cmdb_product'
                 }
             }
         r = requests.post(url,headers=headers,json=data)

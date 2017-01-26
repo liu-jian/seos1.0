@@ -8,7 +8,7 @@ import utils
 output={
 'cmdb_idc':['id','name','name_cn','user_interface','phone','address','email'],
 'cmdb_cabinet':['id','name','idc_id','power'],
-'cmdb_server':['id','servertype_id','sn','assets_no','idc_id','cabinet_id','up_time','hostname','saltname','inner_ip','mac_address','server_disk','server_cpu','server_mem','raid','status_id','product_id','service_id','last_check_time'],
+'cmdb_server':['id','sn','assets_no','idc_id','cabinet_id','up_time','hostname','saltname','inner_ip','disk_total','num_cpus','mem_total','raid','status_id','product_id','service_id','last_check_time'],
 'cmdb_status':['id','name'],
 'cmdb_product':['id','name','name_cn','dev_interface','pm_interface','op_interface'],
 'cmdb_servertype':['id','name'],

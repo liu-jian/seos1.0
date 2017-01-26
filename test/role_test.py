@@ -40,15 +40,15 @@ def rpc():
                 }
             }
 	'''
-        '''
+	'''
         #getbyid请求
         data = {
                 'jsonrpc':'2.0',
                 'method': 'role.get',      
                 'id':'1',
                 'params':{
-   #                 'output':['id','name','name_cn'],
-                    'where':{'id':2}
+                    'output':['id','name','name_cn'],
+                    'where':{'id':1}
                  }
         }
         '''
@@ -62,7 +62,6 @@ def rpc():
                     'output':['id','name','name_cn','p_id'],
                  }
         }
-	
         ''' 
         #update请求
         data = {

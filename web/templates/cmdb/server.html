@@ -56,13 +56,6 @@
 		</div>    
 	</div> <!--URL-->
     <div class="control-group">
-	    <label class ="control-label col-sm-3">系统: </label>
-		<div class="col-sm-9">
-            <select id="servertype_id" name="servertype_id" class ="form-control multiselect" datatype="*" errormsg="系统不能为空">
-            </select>
-		</div>    
-	</div> <!--URL-->
-    <div class="control-group">
 	    <label class ="control-label col-sm-3">状态: </label>
 		<div class="col-sm-9">
             <select id="status_id" name="status_id" class ="form-control multiselect" datatype="*" errormsg="状态不能为空">
@@ -95,6 +88,92 @@
    </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+
+ <!--更新服务器模态窗-->
+<div id="updateModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">更新服务器</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <p hidden id="uperrorMsg" class="text-danger" style="color:red"></p> <!-- foe error msg-->
+    <form class="form-horizontal" id="updateForm" accept-charset="UTF-8">
+    <input type="hidden" id='upid' name="id">  <!--update need id-->
+	<input type="hidden" id='upsaltname' name="saltname">  <!--select need saltname-->
+    
+    <div class="control-group">
+        <label class="control-label col-sm-3">内部编号：</label>
+        <div class="col-sm-9">
+         <input type="text" id="upassets_no" name="assets_no" class="form-control"  datatype="s1-16" errormsg="必须是1-16个字符" />
+        </div>
+    </div> <!--内部编号添加-->
+	
+    <div class="control-group">
+        <label class="control-label col-sm-3">网卡信息：</label>
+        <div class="col-sm-9">
+         <input type="text" id="upethno" name="ethno" class="form-control"  datatype="s1-16" errormsg="必须是1-16个字符" />
+        </div>
+    </div> <!--内部编号添加-->
+    
+    <div class="control-group">
+        <label class="control-label col-sm-3">产品线：</label>
+        <div class="col-sm-9">
+                <select id="upproduct_id" name="product_id" class ="form-control multiselect" datatype="*" errormsg="机房信息不能为空" multiple="multiple" >
+                </select> 
+        </div>  
+    </div><!--选择机房-->
+    
+    <div class="control-group">
+		<label class ="control-label col-sm-3">功能: </label> 
+		<div class="col-sm-9">
+                <select id="upservice_id" name="service_id" class ="form-control multiselect" datatype="*" errormsg="机柜编号不能为空" multiple="multiple" >
+                </select> 
+		</div>  
+	</div> <!--选择机柜-->
+	
+    <div class="control-group">
+        <label class="control-label col-sm-3">备注：</label>
+        <div class="col-sm-9">
+        <textarea  rows="3" class="form-control" id="upinfo" name="info"></textarea>
+        </div>   
+    </div>  <!--备注-->
+    
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="upbtn" >确认更新</button>
+			 	<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div> 
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+<!--服务器详情模态窗-->
+<div id="resModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">机器详情</h4>
+	  </div><!--modal-header end-->
+                <div class="modal-body" id="resbody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">退出</button>
+                </div>
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 
     <div class="widget-content">
     <!--服务器列表-->
@@ -156,6 +235,8 @@ function list(){
 			   '<td>'+v['status_id']+'</td>'+
                '<td>'+
                '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">更新</button>'+
+			   '<button class="btn btn-warning btn-sm check-btn" data-id="'+v['id']+'">例检</button>'+
+			   '<button class="btn btn-default btn-sm res-btn" data-id="'+v['id']+'">详情</button>'+
                '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
                '</td>'+ '</tr>'          
            })       
@@ -175,7 +256,6 @@ list()
 function powerlist(){
     var url_idc="/listapi?method=cmdb&table=cmdb_idc"
 	var url_cabinet="/listapi?method=cmdb&table=cmdb_cabinet"
-	var url_servertype="/listapi?method=cmdb&table=cmdb_servertype"
 	var url_status="/listapi?method=cmdb&table=cmdb_status"
 	var url_product="/listapi?method=cmdb&table=cmdb_product"
 	var url_service="/listapi?method=cmdb&table=cmdb_service"
@@ -207,21 +287,6 @@ function powerlist(){
             $("#cabinet_id").multiselect('refresh')
         }else{
                 swal("error","获取机柜列表失败," + data['errmsg'],"error")
-        } //if end
-    })
-    $.getJSON(url_servertype, function(data){
-        data=JSON.parse(data['result'])
-        console.log(data)   
-        if (data['code']== 0){
-            var str = ''
-            $.each(data.result, function(k,v){
-                str += '<option value="'+v['id']+'">'+v['name']+'</option>'
-            })
-            $("#servertype_id").html(str)
-            $('#servertype_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
-            $("#servertype_id").multiselect('refresh')
-        }else{
-                swal("error","获取系统版本列表失败," + data['errmsg'],"error")
         } //if end
     })
     $.getJSON(url_status, function(data){
@@ -288,7 +353,7 @@ $("#addForm").Validform({
     }
 })
 
-/* 角色添加 */
+/* 服务器添加 */
 $('#addForm').on('submit',function(){
         var check = $("#addForm").Validform().check()   // 获取表单验证插件检查的值，都ok返回true，否则false
         if (check){    
@@ -317,8 +382,128 @@ $('#addForm').on('submit',function(){
         }   // check end
 })  /*submit end*/
 
+/* 服务器详情展示 */
+/* 点击详情按钮，显示服务器详情信息 */
+$("tbody").on('click','.res-btn',function(){
+    var id = $(this).attr('data-id')
+    var url = "/getapi?method="+name+"&id="+id
+	console.log(url)
+    $.getJSON(url,function(data){
+      data = JSON.parse(data['result'])
+      console.log(data)
+	  res = data['result'][0]
+      if (data['code']==0){
+		  str = '<p>HOST：'+ res['host'] + '</p>' +
+		  '<p>SN：'+ res['serialnumber'] + '</p>' +
+		  '<p>IDC：'+ res['idc_id'] + '</p>' +
+		  '<p>机柜：'+ res['cabinet_id'] + '</p>' +
+		  '<p>网卡：'+ res['ethno'] + '</p>' +
+		  '<p>容量：'+ res['disk_total'] + '</p>' +
+		  '<p>使用率：'+ res['disk_usage'] + '</p>' +
+		  '<p>CPU：'+ res['num_cpus'] + '</p>' +
+		  '<p>内存：'+ res['mem_total'] + '</p>'
+		  $('#resbody').html(str)
+          $('#resModal').modal('show')
+      }else{
+          swal("Error", data['errmsg'], "error")
+      }
+    })
+})
 
 
+/* 获取服务器所具备的属性，拼接为下拉列表 */
+function s_powerlist(id){
+	var url_product = "/getapi?method=selected&id="+id+"&m_table=cmdb_server&field=product_id&s_table=cmdb_product"
+	var url_service = "/getapi?method=selected&id="+id+"&m_table=cmdb_server&field=service_id&s_table=cmdb_service"
+	$.getJSON(url_product, function(data){
+		data=JSON.parse(data['result'])
+		console.log(data)
+		var str=''
+		$.each(data.result, function(k,v){
+			console.log(k,v)
+			str += '<option value='+ v['id']+" "+v['selected']+'>'+v['name']+'</option>'
+		})
+		console.log(str)
+		$("#upproduct_id").html(str)
+		$('#upproduct_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+		$('#upproduct_id').multiselect('refresh')
+	})
+	$.getJSON(url_service, function(data){
+		data=JSON.parse(data['result'])
+		console.log(data)
+		var str=''
+		$.each(data.result, function(k,v){
+			console.log(k,v)
+			str += '<option value='+ v['id']+" "+v['selected']+'>'+v['name']+'</option>'
+		})
+		console.log(str)
+		$("#upservice_id").html(str)
+		$('#upservice_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+		$('#upservice_id').multiselect('refresh')
+	})
+	
+}
+
+
+/* 点击按钮，显示更新服务器模态窗,并获取当前服务器的信息 */
+$("tbody").on('click','.update-btn',function(){
+    var id = $(this).attr('data-id')
+    var url = "/getapi?method="+name+"&id="+id
+    $.getJSON(url,function(data){
+      data = JSON.parse(data['result'])
+      console.log(data)
+      if (data['code']==0){
+          $('#upid').val(data['result'][0]['id'])
+		  $('#upsaltname').val(data['result'][0]['saltname'])
+		  $('#upethno').val(data['result'][0]['ethno'])
+          $('#upassets_no').val(data['result'][0]['assets_no'])
+          $('#upinfo').val(data['result'][0]['info'])
+          s_powerlist(id)
+           $('#updateModal').modal('show')
+      }else{
+          swal("Error", data['errmsg'], "error")
+      }
+    })
+})
+
+
+/* 验证更新模态窗中表单的数据 */
+$("#updateForm").Validform({
+    btnSubmit:"#upbtn",
+    tiptype:3, 
+    datatype:{
+        "zh2-4" : /^[\u4E00-\u9FA5\uf900-\ufa2d]{2,4}$/,
+    }
+})
+
+/*更新服务器信息*/
+$('#updateForm').on('submit',function(){
+        var check = $("#updateForm").Validform().check()   // 获取表单验证插件检查的值，都ok返回true，否则false
+        if (check){    
+                var str = $('#updateForm').serialize()
+                var data = str+"&method=server"
+                console.log(data)
+                $.post('/updateapi',data, function(data){  // data is string
+                    data = JSON.parse(data)    //object
+                    data = JSON.parse(data['result']) //object
+                    console.log(data)
+                    if (data['code']==0){   
+                    swal({
+                        title:"success",
+                        text:"更新成功",
+                        type:"success",
+                        confirmButtonText:'确定'
+                        },function(){
+                            $('#updateModal').modal('hide')
+                            location.reload()
+                         })
+                    }else{
+                        $('#uperrorMsg').html('Failed: '+data['errmsg']).show()
+                    }
+                })
+                      return false   //get data and end
+       } // check end
+})  //submit form
 
 
 {% endblock %}

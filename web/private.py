@@ -30,3 +30,21 @@ def upgradeapi():
     utils.write_log('web').info(data)
     r = requests.post(get_url(),headers=headers,json=data)
     return r.text
+
+@app.route('/confapi', methods=['GET','POST'])
+def confapi():
+    headers['authorization'] = session['author']
+    formdata = dict((k,','.join(v)) for k,v in dict(request.form).items())
+    if not formdata.has_key('id'):
+        formdata['id'] = '0'
+    method = formdata['method']
+    data['method'] = "webservice."+method
+    formdata.pop('method')
+    data['params']=formdata
+    data['params']['where'] = {
+        "id":int(formdata['id'])
+        }
+    utils.write_log('web').info(data)
+    r = requests.post(get_url(),headers=headers,json=data)
+    return r.text
+

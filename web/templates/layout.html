@@ -140,8 +140,8 @@ button.detail{
             </ul>    
             </li> <!--用户管理 end-->
 			
-			<li><!--临时发布-->
-            <a href="#"><i class="fa fa-file-code-o fa-fw"></i>临时发布<span class="fa arrow"></span></a>
+			<li><!--网站上线发布-->
+            <a href="#"><i class="fa fa-file-code-o fa-fw"></i>代码发布<span class="fa arrow"></span></a>
             <ul class="nav nav-second-level">
                 {% if info and 'git' in info.perm %}
                 <li>
@@ -149,7 +149,7 @@ button.detail{
                 </li>
                 {% endif %}
             </ul>    
-            </li> <!--代码管理结束-->
+            </li> <!--网站上线发布结束-->
 
 			<li><!--CMDB-->
             <a href="#"><i class="fa fa-file-code-o fa-fw"></i>CMDB<span class="fa arrow"></span></a>
@@ -163,7 +163,20 @@ button.detail{
                 </li>
                 {% endif %}
             </ul>    
-            </li> <!--代码管理结束-->
+            </li> <!--CMDB结束-->
+            <li><!--CMDB-->
+            <a href="#"><i class="fa fa-file-code-o fa-fw"></i>负载控制<span class="fa arrow"></span></a>
+            <ul class="nav nav-second-level">
+                {% if info and 'git' in info.perm %}
+                <li>
+                    <a href="/service/web_upstream">网站服务</a>
+                </li>
+                <li>
+                    <a href="/service/java_upstream">接口服务</a>
+                </li>
+                {% endif %}
+            </ul>    
+            </li> <!--CMDB结束-->
         </ul><!--菜单列表结束-->
 
     </div><!--sidebar-collapse end -->

@@ -102,3 +102,5 @@ def push_cdn():
 
     result = requests.post(prefix, data={'username': username, 'passwd': passwd, 'dir': dir})
     return result.text
+
+

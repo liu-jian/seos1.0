@@ -77,6 +77,20 @@ def cmdb(htmlname):
     else:
         return render_template('cmdb/'+htmlname+'.html',errmsg=validate_result['errmsg']) 
 
+#service模块
+@app.route('/service/<htmlname>')
+def service(htmlname):
+    if session.get('author','nologin') == 'nologin':
+        return redirect('/login')
+    headers['authorization'] = session['author']
+    validate_result = json.loads(utils.validate(session['author'], app.config['passport_key']))
+    if int(validate_result['code']) == 0:
+        return render_template('service/'+htmlname+'.html',info=session,user=session['user'])
+    else:
+        return render_template('service/'+htmlname+'.html',errmsg=validate_result['errmsg'])
+
+
+
 #第三方API接口页面
 @app.route('/api/<htmlname>')  
 def api(htmlname):
